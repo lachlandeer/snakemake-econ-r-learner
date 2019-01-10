@@ -2,16 +2,13 @@
 ##
 ## @yourname
 
-MODELS = [
-          "model_solow",
-          "model_solow_restr"
-          ]
+# --- Dictionaries --- #
+# Identify subset conditions for data
+DATA_SUBSET = glob_wildcards("src/data-specs/{fname}.json").fname
+DATA_SUBSET = list(filter(lambda x: x.startswith("subset"), DATA_SUBSET))
 
-DATA_SUBSET = [
-                "oecd",
-                "intermediate",
-                "nonoil"
-                ]
+# Models we want to estimate
+MODELS = glob_wildcards("src/model-specs/{fname}.json").fname
 
 FIGURES = [
             "aug_conditional_convergence",
