@@ -6,14 +6,12 @@ MODELS = [
           "model_solow",
           "model_solow_restr"
           ]
-print(MODELS)
 
 DATA_SUBSET = [
                 "oecd",
                 "intermediate",
                 "nonoil"
                 ]
-print(DATA_SUBSET)
 
 # --- Build Rules --- #
 
