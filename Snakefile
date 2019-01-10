@@ -28,3 +28,8 @@ rule rename_vars:
         "Rscript {input.script} \
             --data {input.data} \
             --out {output.data}"
+
+# --- Clean Rules --- #
+rule clean:
+    shell:
+        "rm -rf out/*"
