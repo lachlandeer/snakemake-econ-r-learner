@@ -2,8 +2,41 @@
 ##
 ## @yourname
 
+MODELS = [
+          "model_solow",
+          "model_solow_restr"
+          ]
+print(MODELS)
+
+DATA_SUBSET = [
+                "oecd",
+                "intermediate",
+                "nonoil"
+                ]
+print(DATA_SUBSET)
 
 # --- Build Rules --- #
+
+rule estimate_models:
+    input:
+        expand("out/analysis/{iModel}_{iSubset}.rds",
+                    iModel = MODELS,
+                    iSubset = DATA_SUBSET)
+
+rule ols_model:
+    input:
+        script = "src/analysis/estimate_ols_model.R",
+        data   = "out/data/mrw_complete.csv",
+        model  = "src/model-specs/{iModel}.json",
+        subset = "src/data-specs/subset_{iSubset}.json"
+    output:
+        model_est = "out/analysis/{iModel}_{iSubset}.rds",
+    shell:
+        "Rscript {input.script} \
+            --data {input.data} \
+            --model {input.model} \
+            --subset {input.subset} \
+            --out {output.model_est}"
 
 rule gen_regression_vars:
     input:
