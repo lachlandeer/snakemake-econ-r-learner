@@ -13,7 +13,31 @@ DATA_SUBSET = [
                 "nonoil"
                 ]
 
+FIGURES = [
+            "aug_conditional_convergence",
+            "conditional_convergence",
+            "unconditional_convergence"
+            ]
+
 # --- Build Rules --- #
+
+rule make_figs:
+    input:
+        expand("out/figures/{iFigure}.pdf",
+                iFigure = FIGURES)
+
+rule figures:
+    input:
+        script = "src/figures/{iFigure}.R",
+        data   = "out/data/mrw_complete.csv",
+        subset = "src/data-specs/subset_intermediate.json"
+    output:
+        fig = "out/figures/{iFigure}.pdf"
+    shell:
+        "Rscript {input.script} \
+            --data {input.data} \
+            --subset {input.subset} \
+            --out {output.fig}"
 
 rule estimate_models:
     input:
