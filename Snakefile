@@ -56,11 +56,14 @@ rule textbook_solow:
         model_expr = "model_solow*.rds"
     output:
         table = "out/tables/tab01_textbook_solow.tex"
+    log:
+        "logs/tables/tab01_textbook_solow.Rout"
     shell:
         "Rscript {input.script} \
             --filepath {params.filepath} \
             --models {params.model_expr} \
-            --out {output.table}"
+            --out {output.table} \
+            >& {log}"
 
 rule make_figs:
     input:
