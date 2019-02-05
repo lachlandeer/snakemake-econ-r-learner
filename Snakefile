@@ -18,7 +18,7 @@ rule all:
     input:
         figs   = expand("out/figures/{iFigure}.pdf",
                             iFigure = FIGURES),
-        models = expand("out/analysis/{iModel}_{iSubset}.rds",
+        models = expand("out/analysis/{iModel}_ols_{iSubset}.rds",
                             iModel = MODELS,
                             iSubset = DATA_SUBSET)
 
@@ -42,7 +42,7 @@ rule figures:
 
 rule estimate_models:
     input:
-        expand("out/analysis/{iModel}_{iSubset}.rds",
+        expand("out/analysis/{iModel}_ols_{iSubset}.rds",
                     iModel = MODELS,
                     iSubset = DATA_SUBSET)
 
@@ -51,9 +51,9 @@ rule ols_model:
         script = "src/analysis/estimate_ols_model.R",
         data   = "out/data/mrw_complete.csv",
         model  = "src/model-specs/{iModel}.json",
-        subset = "src/data-specs/subset_{iSubset}.json"
+        subset = "src/data-specs/{iSubset}.json"
     output:
-        model_est = "out/analysis/{iModel}_{iSubset}.rds",
+        model_est = "out/analysis/{iModel}_ols_{iSubset}.rds",
     shell:
         "Rscript {input.script} \
             --data {input.data} \
