@@ -20,7 +20,25 @@ rule all:
                             iFigure = FIGURES),
         models = expand("out/analysis/{iModel}_ols_{iSubset}.rds",
                             iModel = MODELS,
-                            iSubset = DATA_SUBSET)
+                            iSubset = DATA_SUBSET),
+        tab01  = "out/tables/tab01_textbook_solow.tex"
+
+rule textbook_solow:
+    input:
+        script = "src/tables/tab01_textbook_solow.R",
+        models = expand("out/analysis/{iModel}_ols_{iSubset}.rds",
+                            iModel = MODELS,
+                            iSubset = DATA_SUBSET),
+    params:
+        filepath   = "out/analysis/",
+        model_expr = "model_solow*.rds"
+    output:
+        table = "out/tables/tab01_textbook_solow.tex"
+    shell:
+        "Rscript {input.script} \
+            --filepath {params.filepath} \
+            --models {params.model_expr} \
+            --out {output.table}"
 
 rule make_figs:
     input:
