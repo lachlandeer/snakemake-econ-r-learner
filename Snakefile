@@ -1,6 +1,7 @@
 ## Snakemake - MRW Replication
 ##
 ## @yourname
+##
 
 # --- Dictionaries --- #
 # Identify subset conditions for data
@@ -28,6 +29,7 @@ rule all:
         tables  = expand("out/tables/{iTable}.tex",
                             iTable = TABLES)
 
+## augment_solow: construct a table of estimates for augmented solow model
 rule augment_solow:
     input:
         script = "src/tables/tab02_augment_solow.R",
@@ -45,6 +47,7 @@ rule augment_solow:
             --models {params.model_expr} \
             --out {output.table}"
 
+## textbook_solow: construct a table of estimates for textbook solow model
 rule textbook_solow:
     input:
         script = "src/tables/tab01_textbook_solow.R",
@@ -132,3 +135,11 @@ rule rename_vars:
 rule clean:
     shell:
         "rm -rf out/*"
+
+# --- Help Rules --- #
+
+## help_main      : prints help comments for Snakefile
+rule help:
+    input: "Snakefile"
+    shell:
+        "sed -n 's/^##//p' {input}"
