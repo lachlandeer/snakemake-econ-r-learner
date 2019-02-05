@@ -11,6 +11,10 @@ DATA_SUBSET = list(filter(lambda x: x.startswith("subset"), DATA_SUBSET))
 MODELS = glob_wildcards("src/model-specs/{fname}.json").fname
 
 FIGURES = glob_wildcards("src/figures/{fname}.R").fname
+TABLES  = [
+            "tab01_textbook_solow",
+            "tab02_augment_solow"
+]
 
 # --- Build Rules --- #
 
@@ -21,7 +25,25 @@ rule all:
         models = expand("out/analysis/{iModel}_ols_{iSubset}.rds",
                             iModel = MODELS,
                             iSubset = DATA_SUBSET),
-        tab01  = "out/tables/tab01_textbook_solow.tex"
+        tables  = expand("out/tables/{iTable}.tex",
+                            iTable = TABLES)
+
+rule augment_solow:
+    input:
+        script = "src/tables/tab02_augment_solow.R",
+        models = expand("out/analysis/{iModel}_ols_{iSubset}.rds",
+                            iModel = MODELS,
+                            iSubset = DATA_SUBSET),
+    params:
+        filepath   = "out/analysis/",
+        model_expr = "model_aug_solow*.rds"
+    output:
+        table = "out/tables/tab02_augment_solow.tex",
+    shell:
+        "Rscript {input.script} \
+            --filepath {params.filepath} \
+            --models {params.model_expr} \
+            --out {output.table}"
 
 rule textbook_solow:
     input:
