@@ -10,13 +10,17 @@ DATA_SUBSET = list(filter(lambda x: x.startswith("subset"), DATA_SUBSET))
 # Models we want to estimate
 MODELS = glob_wildcards("src/model-specs/{fname}.json").fname
 
-FIGURES = [
-            "aug_conditional_convergence",
-            "conditional_convergence",
-            "unconditional_convergence"
-            ]
+FIGURES = glob_wildcards("src/figures/{fname}.R").fname
 
 # --- Build Rules --- #
+
+rule all:
+    input:
+        figs   = expand("out/figures/{iFigure}.pdf",
+                            iFigure = FIGURES),
+        models = expand("out/analysis/{iModel}_{iSubset}.rds",
+                            iModel = MODELS,
+                            iSubset = DATA_SUBSET)
 
 rule make_figs:
     input:
