@@ -148,5 +148,6 @@ rule clean:
 ## help               : prints help comments for Snakefile
 rule help:
     input: "Snakefile"
+    output: "HELP.txt"
     shell:
-        "sed -n 's/^##//p' {input}"
+        "sed -n 's/^##//p' {input} > {output}"
