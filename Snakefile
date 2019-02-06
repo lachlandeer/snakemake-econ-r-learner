@@ -19,7 +19,7 @@ TABLES  = [
 
 # --- Build Rules --- #
 
-## all: builds all final outputs
+## all                : builds all final outputs
 rule all:
     input:
         figs   = expand("out/figures/{iFigure}.pdf",
@@ -30,7 +30,7 @@ rule all:
         tables  = expand("out/tables/{iTable}.tex",
                             iTable = TABLES)
 
-## augment_solow: construct a table of estimates for augmented solow model
+## augment_solow      : construct a table of estimates for augmented solow model
 rule augment_solow:
     input:
         script = "src/tables/tab02_augment_solow.R",
@@ -48,7 +48,7 @@ rule augment_solow:
             --models {params.model_expr} \
             --out {output.table}"
 
-## textbook_solow: construct a table of regression estimates for textbook solow model
+## textbook_solow     : construct a table of regression estimates for textbook solow model
 rule textbook_solow:
     input:
         script = "src/tables/tab01_textbook_solow.R",
@@ -69,13 +69,13 @@ rule textbook_solow:
             --out {output.table} \
             >& {log}"
 
-## make_figs: builds all figures
+## make_figs          : builds all figures
 rule make_figs:
     input:
         expand("out/figures/{iFigure}.pdf",
                 iFigure = FIGURES)
 
-## figures:  recipe for constructing a figure (cannot be called)
+## figures            : recipe for constructing a figure (cannot be called)
 rule figures:
     input:
         script = "src/figures/{iFigure}.R",
@@ -89,14 +89,14 @@ rule figures:
             --subset {input.subset} \
             --out {output.fig}"
 
-## estimate_models: estimates all regressions
+## estimate_models    : estimates all regressions
 rule estimate_models:
     input:
         expand("out/analysis/{iModel}_ols_{iSubset}.rds",
                     iModel = MODELS,
                     iSubset = DATA_SUBSET)
 
-## ols_models: recipe for estimating a single regression (cannot be called)
+## ols_models         : recipe for estimating a single regression (cannot be called)
 rule ols_model:
     input:
         script = "src/analysis/estimate_ols_model.R",
@@ -126,7 +126,7 @@ rule gen_regression_vars:
             --param {input.params} \
             --out {output.data}"
 
-## rename_vars: creates meaningful variable names
+## rename_vars        : creates meaningful variable names
 rule rename_vars:
     input:
         script = "src/data-management/rename_variables.R",
@@ -139,7 +139,7 @@ rule rename_vars:
             --out {output.data}"
 
 # --- Clean Rules --- #
-## clean      : removes all content from out/ directory
+## clean              : removes all content from out/ directory
 rule clean:
     shell:
         "rm -rf out/*"
