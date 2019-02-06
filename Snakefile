@@ -136,8 +136,7 @@ rule clean:
         "rm -rf out/*"
 
 # --- Help Rules --- #
-
-## help_main      : prints help comments for Snakefile
+## help               : prints help comments for Snakefile
 rule help:
     input: "Snakefile"
     shell:
