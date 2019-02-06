@@ -29,7 +29,6 @@ rule all:
         tables  = expand("out/tables/{iTable}.tex",
                             iTable = TABLES)
 
-## augment_solow: construct a table of estimates for augmented solow model
 rule augment_solow:
     input:
         script = "src/tables/tab02_augment_solow.R",
