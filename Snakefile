@@ -47,7 +47,7 @@ rule augment_solow:
             --models {params.model_expr} \
             --out {output.table}"
 
-## textbook_solow: construct a table of estimates for textbook solow model
+## textbook_solow: construct a table of regression estimates for textbook solow model
 rule textbook_solow:
     input:
         script = "src/tables/tab01_textbook_solow.R",
