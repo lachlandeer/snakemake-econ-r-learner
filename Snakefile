@@ -143,7 +143,6 @@ rule rename_vars:
 rule clean:
     shell:
         "rm -rf out/*"
-<<<<<<< HEAD
 
 # --- Help Rules --- #
 ## help               : prints help comments for Snakefile
@@ -151,5 +150,3 @@ rule help:
     input: "Snakefile"
     shell:
         "sed -n 's/^##//p' {input}"
-=======
->>>>>>> 07ex
