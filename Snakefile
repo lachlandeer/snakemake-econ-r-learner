@@ -22,10 +22,13 @@ TABLES  = [
 ]
 
 # --- Sub Workflows --- #
-# only need the final outputs here
 subworkflow data_mgt:
    workdir: config["ROOT"]
    snakefile:  config["src_data_mgt"] + "Snakefile"
+
+subworkflow analysis:
+   workdir: config["ROOT"]
+   snakefile:  config["src_analysis"] + "Snakefile"
 
 # --- Build Rules --- #
 
@@ -34,9 +37,11 @@ rule all:
     input:
         figs   = expand(config["out_figures"] + "{iFigure}.pdf",
                             iFigure = FIGURES),
-        models = expand(config["out_analysis"] + "{iModel}_ols_{iSubset}.rds",
+        models = analysis(expand(config["out_analysis"] +
+                            "{iModel}_ols_{iSubset}.rds",
                             iModel = MODELS,
-                            iSubset = DATA_SUBSET),
+                            iSubset = DATA_SUBSET)
+                            ),
         tables  = expand(config["out_tables"] + "{iTable}.tex",
                             iTable = TABLES)
 
@@ -44,9 +49,11 @@ rule all:
 rule augment_solow:
     input:
         script = config["src_tables"] + "tab02_augment_solow.R",
-        models = expand(config["out_analysis"] + "{iModel}_ols_{iSubset}.rds",
+        models = analysis(expand(config["out_analysis"] +
+                            "{iModel}_ols_{iSubset}.rds",
                             iModel = MODELS,
-                            iSubset = DATA_SUBSET),
+                            iSubset = DATA_SUBSET)
+                            ),
     params:
         filepath   = config["out_analysis"],
         model_expr = "model_aug_solow*.rds"
@@ -65,9 +72,11 @@ rule augment_solow:
 rule textbook_solow:
     input:
         script = config["src_tables"] + "tab01_textbook_solow.R",
-        models = expand(config["out_analysis"] + "{iModel}_ols_{iSubset}.rds",
+        models = analysis(expand(config["out_analysis"] +
+                            "{iModel}_ols_{iSubset}.rds",
                             iModel = MODELS,
-                            iSubset = DATA_SUBSET),
+                            iSubset = DATA_SUBSET)
+                            ),
     params:
         filepath   = config["out_analysis"],
         model_expr = "model_solow*.rds"
@@ -105,31 +114,6 @@ rule figures:
             --out {output.fig} \
             >& {log}"
 
-## estimate_models    : estimates all regressions
-rule estimate_models:
-    input:
-        expand(config["out_analysis"] + "{iModel}_ols_{iSubset}.rds",
-                    iModel = MODELS,
-                    iSubset = DATA_SUBSET)
-
-## ols_models         : recipe for estimating a single regression (cannot be called)
-rule ols_model:
-    input:
-        script = config["src_analysis"] + "estimate_ols_model.R",
-        data   = data_mgt(config["out_data"] + "mrw_complete.csv"),
-        model  = config["src_model_specs"] + "{iModel}.json",
-        subset = config["src_data_specs"]  + "{iSubset}.json"
-    output:
-        model_est = config["out_analysis"] + "{iModel}_ols_{iSubset}.rds",
-    log:
-        config["log"] + "analysis/{iModel}_ols_{iSubset}.Rout"
-    shell:
-        "Rscript {input.script} \
-            --data {input.data} \
-            --model {input.model} \
-            --subset {input.subset} \
-            --out {output.model_est} \
-            >& {log}"
 
 
 # --- Clean Rules --- #
