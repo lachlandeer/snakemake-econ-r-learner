@@ -30,13 +30,19 @@ subworkflow analysis:
    workdir: config["ROOT"]
    snakefile:  config["src_analysis"] + "Snakefile"
 
+subworkflow figs:
+   workdir: config["ROOT"]
+   snakefile:  config["src_figures"] + "Snakefile"
+
 # --- Build Rules --- #
 
 ## all                : builds all final outputs
 rule all:
     input:
-        figs   = expand(config["out_figures"] + "{iFigure}.pdf",
-                            iFigure = FIGURES),
+        figs   = figs(expand(config["out_figures"] +
+                            "{iFigure}.pdf",
+                            iFigure = FIGURES)
+                            ),
         models = analysis(expand(config["out_analysis"] +
                             "{iModel}_ols_{iSubset}.rds",
                             iModel = MODELS,
@@ -90,31 +96,6 @@ rule textbook_solow:
             --models {params.model_expr} \
             --out {output.table} \
             >& {log}"
-
-## make_figs          : builds all figures
-rule make_figs:
-    input:
-        expand(config["out_figures"] + "{iFigure}.pdf",
-                iFigure = FIGURES)
-
-## figures            : recipe for constructing a figure (cannot be called)
-rule figures:
-    input:
-        script = config["src_figures"] + "{iFigure}.R",
-        data   = data_mgt(config["out_data"] + "mrw_complete.csv"),
-        subset = config["src_data_specs"] + "subset_intermediate.json"
-    output:
-        fig = config["out_figures"] + "{iFigure}.pdf"
-    log:
-        config["log"]+ "figures/{iFigure}.Rout"
-    shell:
-        "Rscript {input.script} \
-            --data {input.data} \
-            --subset {input.subset} \
-            --out {output.fig} \
-            >& {log}"
-
-
 
 # --- Clean Rules --- #
 ## clean              : removes all content from out/ directory
