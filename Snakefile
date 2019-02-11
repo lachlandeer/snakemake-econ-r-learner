@@ -62,7 +62,13 @@ rule clean:
 # --- Help Rules --- #
 ## help               : prints help comments for Snakefile
 rule help:
-    input: "Snakefile"
+    input:
+        main     = "Snakefile",
+        tables   = config["src_tables"] + "Snakefile",
+        analysis = config["src_analysis"] + "Snakefile",
+        data_mgt = config["src_data_mgt"] + "Snakefile",
+        figs     = config["src_figures"] + "Snakefile"
     output: "HELP.txt"
     shell:
-        "sed -n 's/^##//p' {input} > {output}"
+        "find . -type f -name 'Snakefile' | tac | xargs sed -n 's/^##//p' \
+            > {output}"
