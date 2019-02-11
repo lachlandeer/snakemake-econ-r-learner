@@ -39,11 +39,14 @@ rule augment_solow:
         model_expr = "model_aug_solow*.rds"
     output:
         table = "out/tables/tab02_augment_solow.tex",
+    log:
+        "logs/tables/tab02_augment_solow.Rout"
     shell:
         "Rscript {input.script} \
             --filepath {params.filepath} \
             --models {params.model_expr} \
-            --out {output.table}"
+            --out {output.table} \
+            >& {log}"
 
 rule textbook_solow:
     input:
@@ -77,11 +80,14 @@ rule figures:
         subset = "src/data-specs/subset_intermediate.json"
     output:
         fig = "out/figures/{iFigure}.pdf"
+    log:
+        "logs/figures/{iFigure}.Rout"
     shell:
         "Rscript {input.script} \
             --data {input.data} \
             --subset {input.subset} \
-            --out {output.fig}"
+            --out {output.fig} \
+            >& {log}"
 
 rule estimate_models:
     input:
@@ -97,12 +103,15 @@ rule ols_model:
         subset = "src/data-specs/{iSubset}.json"
     output:
         model_est = "out/analysis/{iModel}_ols_{iSubset}.rds",
+    log:
+        "logs/analysis/{iModel}_ols_{iSubset}.Rout"
     shell:
         "Rscript {input.script} \
             --data {input.data} \
             --model {input.model} \
             --subset {input.subset} \
-            --out {output.model_est}"
+            --out {output.model_est} \
+            >& {log}"
 
 rule gen_regression_vars:
     input:
@@ -111,11 +120,14 @@ rule gen_regression_vars:
         params = "src/data-specs/param_solow.json",
     output:
         data = "out/data/mrw_complete.csv"
+    log:
+        "logs/data-mgt/gen_reg_vars.Rout"
     shell:
         "Rscript {input.script} \
             --data {input.data} \
             --param {input.params} \
-            --out {output.data}"
+            --out {output.data} \
+            >& {log}"
 
 rule rename_vars:
     input:
@@ -123,10 +135,13 @@ rule rename_vars:
         data   = "src/data/mrw.dta"
     output:
         data = "out/data/mrw_renamed.csv"
+    log:
+        "logs/data-mgt/rename_variables.Rout"
     shell:
         "Rscript {input.script} \
             --data {input.data} \
-            --out {output.data}"
+            --out {output.data} \
+            >& {log}"
 
 # --- Clean Rules --- #
 rule clean:
