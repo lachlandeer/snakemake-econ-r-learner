@@ -3,6 +3,10 @@
 ## @yourname
 ##
 
+# --- Importing Configuration Files --- #
+
+configfile: "config.yaml"
+
 # --- Dictionaries --- #
 # Identify subset conditions for data
 DATA_SUBSET = glob_wildcards("src/data-specs/{fname}.json").fname
@@ -141,12 +145,12 @@ rule gen_regression_vars:
 ## rename_vars        : creates meaningful variable names
 rule rename_vars:
     input:
-        script = "src/data-management/rename_variables.R",
-        data   = "src/data/mrw.dta"
+        script = config["src_data_mgt"] + "rename_variables.R",
+        data   = config["src_data"] + "mrw.dta"
     output:
-        data = "out/data/mrw_renamed.csv"
+        data = config["out_data"] + "mrw_renamed.csv"
     log:
-        "logs/data-mgt/rename_variables.Rout"
+        config["out_log"] + "data-mgt/rename_variables.Rout"
     shell:
         "Rscript {input.script} \
             --data {input.data} \
