@@ -21,6 +21,12 @@ TABLES  = [
             "tab02_augment_solow"
 ]
 
+# --- Sub Workflows --- #
+# only need the final outputs here
+subworkflow data_mgt:
+   workdir: config["ROOT"]
+   snakefile:  config["src_data_mgt"] + "Snakefile"
+
 # --- Build Rules --- #
 
 ## all                : builds all final outputs
@@ -86,7 +92,7 @@ rule make_figs:
 rule figures:
     input:
         script = config["src_figures"] + "{iFigure}.R",
-        data   = config["out_data"] + "mrw_complete.csv",
+        data   = data_mgt(config["out_data"] + "mrw_complete.csv"),
         subset = config["src_data_specs"] + "subset_intermediate.json"
     output:
         fig = config["out_figures"] + "{iFigure}.pdf"
@@ -110,7 +116,7 @@ rule estimate_models:
 rule ols_model:
     input:
         script = config["src_analysis"] + "estimate_ols_model.R",
-        data   = config["out_data"] + "mrw_complete.csv",
+        data   = data_mgt(config["out_data"] + "mrw_complete.csv"),
         model  = config["src_model_specs"] + "{iModel}.json",
         subset = config["src_data_specs"]  + "{iSubset}.json"
     output:
@@ -125,37 +131,6 @@ rule ols_model:
             --out {output.model_est} \
             >& {log}"
 
-## gen_regression_vars: creates variables needed to estimate a regression
-rule gen_regression_vars:
-    input:
-        script = config["src_data_mgt"] + "gen_reg_vars.R",
-        data   = config["out_data"] + "out/data/mrw_renamed.csv",
-        params = config["src_data_specs"] + "param_solow.json",
-    output:
-        data = config["out_data"] + "mrw_complete.csv"
-    log:
-        config["log"] + "data-mgt/gen_reg_vars.Rout"
-    shell:
-        "Rscript {input.script} \
-            --data {input.data} \
-            --param {input.params} \
-            --out {output.data} \
-            >& {log}"
-
-## rename_vars        : creates meaningful variable names
-rule rename_vars:
-    input:
-        script = config["src_data_mgt"] + "rename_variables.R",
-        data   = config["src_data"] + "mrw.dta"
-    output:
-        data = config["out_data"] + "mrw_renamed.csv"
-    log:
-        config["log"] + "data-mgt/rename_variables.Rout"
-    shell:
-        "Rscript {input.script} \
-            --data {input.data} \
-            --out {output.data} \
-            >& {log}"
 
 # --- Clean Rules --- #
 ## clean              : removes all content from out/ directory

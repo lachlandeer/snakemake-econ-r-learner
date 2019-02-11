@@ -1,0 +1,42 @@
+# subworkflow - data-management
+#
+# @yourname
+#
+
+# --- Importing Configuration Files --- #
+
+configfile: "config.yaml"
+
+# --- Build Rules --- #
+
+## gen_regression_vars: creates variables needed to estimate a regression
+rule gen_regression_vars:
+    input:
+        script = config["src_data_mgt"] + "gen_reg_vars.R",
+        data   = config["out_data"] + "mrw_renamed.csv",
+        params = config["src_data_specs"] + "param_solow.json",
+    output:
+        data = config["out_data"] + "mrw_complete.csv"
+    log:
+        config["log"] + "data-mgt/gen_reg_vars.Rout"
+    shell:
+        "Rscript {input.script} \
+            --data {input.data} \
+            --param {input.params} \
+            --out {output.data} \
+            >& {log}"
+
+## rename_vars        : creates meaningful variable names
+rule rename_vars:
+    input:
+        script = config["src_data_mgt"] + "rename_variables.R",
+        data   = config["src_data"] + "mrw.dta"
+    output:
+        data = config["out_data"] + "mrw_renamed.csv"
+    log:
+        config["log"] + "data-mgt/rename_variables.Rout"
+    shell:
+        "Rscript {input.script} \
+            --data {input.data} \
+            --out {output.data} \
+            >& {log}"
