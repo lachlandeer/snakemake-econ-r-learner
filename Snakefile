@@ -9,13 +9,13 @@ configfile: "config.yaml"
 
 # --- Dictionaries --- #
 # Identify subset conditions for data
-DATA_SUBSET = glob_wildcards("src/data-specs/{fname}.json").fname
+DATA_SUBSET = glob_wildcards(config["src_data_specs"] + "{fname}.json").fname
 DATA_SUBSET = list(filter(lambda x: x.startswith("subset"), DATA_SUBSET))
 
 # Models we want to estimate
-MODELS = glob_wildcards("src/model-specs/{fname}.json").fname
+MODELS = glob_wildcards(config["src_model_specs"] + "{fname}.json").fname
 
-FIGURES = glob_wildcards("src/figures/{fname}.R").fname
+FIGURES = glob_wildcards(config["src_figures"] + "{fname}.R").fname
 TABLES  = [
             "tab01_textbook_solow",
             "tab02_augment_solow"
@@ -26,28 +26,28 @@ TABLES  = [
 ## all                : builds all final outputs
 rule all:
     input:
-        figs   = expand("out/figures/{iFigure}.pdf",
+        figs   = expand(config["out_figures"] + "{iFigure}.pdf",
                             iFigure = FIGURES),
-        models = expand("out/analysis/{iModel}_ols_{iSubset}.rds",
+        models = expand(config["out_analysis"] + "{iModel}_ols_{iSubset}.rds",
                             iModel = MODELS,
                             iSubset = DATA_SUBSET),
-        tables  = expand("out/tables/{iTable}.tex",
+        tables  = expand(config["out_tables"] + "{iTable}.tex",
                             iTable = TABLES)
 
 ## augment_solow      : construct a table of estimates for augmented solow model
 rule augment_solow:
     input:
-        script = "src/tables/tab02_augment_solow.R",
-        models = expand("out/analysis/{iModel}_ols_{iSubset}.rds",
+        script = config["src_tables"] + "tab02_augment_solow.R",
+        models = expand(config["out_analysis"] + "{iModel}_ols_{iSubset}.rds",
                             iModel = MODELS,
                             iSubset = DATA_SUBSET),
     params:
-        filepath   = "out/analysis/",
+        filepath   = config["out_analysis"],
         model_expr = "model_aug_solow*.rds"
     output:
-        table = "out/tables/tab02_augment_solow.tex",
+        table = config["out_tables"] + "tab02_augment_solow.tex",
     log:
-        "logs/tables/tab02_augment_solow.Rout"
+        config["log"] + "tables/tab02_augment_solow.Rout"
     shell:
         "Rscript {input.script} \
             --filepath {params.filepath} \
@@ -58,17 +58,17 @@ rule augment_solow:
 ## textbook_solow     : construct a table of regression estimates for textbook solow model
 rule textbook_solow:
     input:
-        script = "src/tables/tab01_textbook_solow.R",
-        models = expand("out/analysis/{iModel}_ols_{iSubset}.rds",
+        script = config["src_tables"] + "tab01_textbook_solow.R",
+        models = expand(config["out_analysis"] + "{iModel}_ols_{iSubset}.rds",
                             iModel = MODELS,
                             iSubset = DATA_SUBSET),
     params:
-        filepath   = "out/analysis/",
+        filepath   = config["out_analysis"],
         model_expr = "model_solow*.rds"
     output:
-        table = "out/tables/tab01_textbook_solow.tex"
+        table = config["out_tables"] + "tab01_textbook_solow.tex"
     log:
-        "logs/tables/tab01_textbook_solow.Rout"
+        config["log"] + "tables/tab01_textbook_solow.Rout"
     shell:
         "Rscript {input.script} \
             --filepath {params.filepath} \
@@ -79,19 +79,19 @@ rule textbook_solow:
 ## make_figs          : builds all figures
 rule make_figs:
     input:
-        expand("out/figures/{iFigure}.pdf",
+        expand(config["out_figures"] + "{iFigure}.pdf",
                 iFigure = FIGURES)
 
 ## figures            : recipe for constructing a figure (cannot be called)
 rule figures:
     input:
-        script = "src/figures/{iFigure}.R",
-        data   = "out/data/mrw_complete.csv",
-        subset = "src/data-specs/subset_intermediate.json"
+        script = config["src_figures"] + "{iFigure}.R",
+        data   = config["out_data"] + "mrw_complete.csv",
+        subset = config["src_data_specs"] + "subset_intermediate.json"
     output:
-        fig = "out/figures/{iFigure}.pdf"
+        fig = config["out_figures"] + "{iFigure}.pdf"
     log:
-        "logs/figures/{iFigure}.Rout"
+        config["log"]+ "figures/{iFigure}.Rout"
     shell:
         "Rscript {input.script} \
             --data {input.data} \
@@ -102,21 +102,21 @@ rule figures:
 ## estimate_models    : estimates all regressions
 rule estimate_models:
     input:
-        expand("out/analysis/{iModel}_ols_{iSubset}.rds",
+        expand(config["out_analysis"] + "{iModel}_ols_{iSubset}.rds",
                     iModel = MODELS,
                     iSubset = DATA_SUBSET)
 
 ## ols_models         : recipe for estimating a single regression (cannot be called)
 rule ols_model:
     input:
-        script = "src/analysis/estimate_ols_model.R",
-        data   = "out/data/mrw_complete.csv",
-        model  = "src/model-specs/{iModel}.json",
-        subset = "src/data-specs/{iSubset}.json"
+        script = config["src_analysis"] + "estimate_ols_model.R",
+        data   = config["out_data"] + "mrw_complete.csv",
+        model  = config["src_model_specs"] + "{iModel}.json",
+        subset = config["src_data_specs"]  + "{iSubset}.json"
     output:
-        model_est = "out/analysis/{iModel}_ols_{iSubset}.rds",
+        model_est = config["out_analysis"] + "{iModel}_ols_{iSubset}.rds",
     log:
-        "logs/analysis/{iModel}_ols_{iSubset}.Rout"
+        config["log"] + "analysis/{iModel}_ols_{iSubset}.Rout"
     shell:
         "Rscript {input.script} \
             --data {input.data} \
@@ -128,13 +128,13 @@ rule ols_model:
 ## gen_regression_vars: creates variables needed to estimate a regression
 rule gen_regression_vars:
     input:
-        script = "src/data-management/gen_reg_vars.R",
-        data   = "out/data/mrw_renamed.csv",
-        params = "src/data-specs/param_solow.json",
+        script = config["src_data_mgt"] + "gen_reg_vars.R",
+        data   = config["out_data"] + "out/data/mrw_renamed.csv",
+        params = config["src_data_specs"] + "param_solow.json",
     output:
-        data = "out/data/mrw_complete.csv"
+        data = config["out_data"] + "mrw_complete.csv"
     log:
-        "logs/data-mgt/gen_reg_vars.Rout"
+        config["log"] + "data-mgt/gen_reg_vars.Rout"
     shell:
         "Rscript {input.script} \
             --data {input.data} \
@@ -150,7 +150,7 @@ rule rename_vars:
     output:
         data = config["out_data"] + "mrw_renamed.csv"
     log:
-        config["out_log"] + "data-mgt/rename_variables.Rout"
+        config["log"] + "data-mgt/rename_variables.Rout"
     shell:
         "Rscript {input.script} \
             --data {input.data} \
