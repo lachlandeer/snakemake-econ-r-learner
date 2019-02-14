@@ -24,7 +24,7 @@ rule gen_regression_vars:
             --data {input.data} \
             --param {input.params} \
             --out {output.data} \
-            >& {log}"
+            > {log} 2>&1"
 
 ## rename_vars        : creates meaningful variable names
 rule rename_vars:
@@ -39,4 +39,4 @@ rule rename_vars:
         "Rscript {input.script} \
             --data {input.data} \
             --out {output.data} \
-            >& {log}"
+            > {log} 2>&1"

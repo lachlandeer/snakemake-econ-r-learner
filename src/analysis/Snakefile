@@ -24,17 +24,17 @@ rule estimate_models:
 rule ols_model:
     input:
         script = Path(config["src_analysis"]) / "estimate_ols_model.R",
-        data   = data_mgt(str_from_path(Path(config["out_data"]) / "mrw_complete.csv")),
+        data   = data_mgt(Path(config["out_data"]) / "mrw_complete.csv"),
         model  = Path(config["src_model_specs"]) / "{iModel}.json",
         subset = Path(config["src_data_specs"])  / "{iSubset}.json"
     output:
-        model_est = Path(config["out_analysis"]) / "{iModel}_ols_{iSubset}.rds",
+        model_est = Path(config["out_analysis"]) / "{iModel}_ols_{iSubset}.rds"
     log:
-        str_from_path(Path(config["log"]) / "analysis/{iModel}_ols_{iSubset}.Rout")
+        str_from_path(Path(config["log"]) / "analysis" / "{iModel}_ols_{iSubset}.Rout")
     shell:
         "Rscript {input.script} \
             --data {input.data} \
             --model {input.model} \
             --subset {input.subset} \
             --out {output.model_est} \
-            >& {log}"
+            > {log} 2>&1"
