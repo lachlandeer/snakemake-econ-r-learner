@@ -9,28 +9,28 @@ configfile: "config.yaml"
 
 # --- Sub Workflows --- #
 subworkflow data_mgt:
-   workdir: str_from_path(Path(config["sub2root"]) / config["ROOT"])
-   snakefile:  str_from_path(Path(config["sub2root"]) / config["src_data_mgt"] / "Snakefile")
+   workdir: config["sub2root"] + config["ROOT"]
+   snakefile:  config["sub2root"] + config["src_data_mgt"] + "Snakefile"
 
 # --- Build Rules --- #
 ## estimate_models    : estimates all regressions
 rule estimate_models:
     input:
-        expand(str_from_path(Path(config["out_analysis"]) / "{iModel}_ols_{iSubset}.rds"),
+        expand(config["out_analysis"] + "{iModel}_ols_{iSubset}.rds",
                     iModel = MODELS,
                     iSubset = DATA_SUBSET)
 
 ## ols_models         : recipe for estimating a single regression (cannot be called)
 rule ols_model:
     input:
-        script = Path(config["src_analysis"]) / "estimate_ols_model.R",
-        data   = data_mgt(Path(config["out_data"]) / "mrw_complete.csv"),
-        model  = Path(config["src_model_specs"]) / "{iModel}.json",
-        subset = Path(config["src_data_specs"])  / "{iSubset}.json"
+        script = config["src_analysis"] + "estimate_ols_model.R",
+        data   = data_mgt(config["out_data"] + "mrw_complete.csv"),
+        model  = config["src_model_specs"] + "{iModel}.json",
+        subset = config["src_data_specs"]  + "{iSubset}.json"
     output:
         model_est = Path(config["out_analysis"]) / "{iModel}_ols_{iSubset}.rds"
     log:
-        str_from_path(Path(config["log"]) / "analysis" / "{iModel}_ols_{iSubset}.Rout")
+        config["log"] + "analysis/{iModel}_ols_{iSubset}.Rout"
     shell:
         "Rscript {input.script} \
             --data {input.data} \

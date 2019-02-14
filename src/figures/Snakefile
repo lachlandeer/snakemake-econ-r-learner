@@ -10,7 +10,7 @@ configfile: "config.yaml"
 # --- Sub Workflows --- #
 subworkflow data_mgt:
    workdir: config["sub2root"] + config["ROOT"]
-   snakefile:  config["sub2root"]+ config["src_data_mgt"] + "Snakefile"
+   snakefile: config["sub2root"] + config["src_data_mgt"] + "Snakefile"
 
 # --- Build Rules --- #
 ## make_figs          : builds all figures
@@ -26,7 +26,7 @@ rule figures:
         data   = data_mgt(config["out_data"] + "mrw_complete.csv"),
         subset = config["src_data_specs"] + "subset_intermediate.json"
     output:
-        fig = config["out_figures"] + "{iFigure}.pdf"
+        fig = Path(config["out_figures"]) / "{iFigure}.pdf"
     log:
         config["log"]+ "figures/{iFigure}.Rout"
     shell:
@@ -34,4 +34,4 @@ rule figures:
             --data {input.data} \
             --subset {input.subset} \
             --out {output.fig} \
-            >& {log}"
+            > {log} 2>&1"

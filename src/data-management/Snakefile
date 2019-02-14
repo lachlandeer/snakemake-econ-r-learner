@@ -12,13 +12,13 @@ configfile: "config.yaml"
 ## gen_regression_vars: creates variables needed to estimate a regression
 rule gen_regression_vars:
     input:
-        script = Path(config["src_data_mgt"]) / "gen_reg_vars.R",
+        script = config["src_data_mgt"] + "gen_reg_vars.R",
         data   = Path(config["out_data"]) / "mrw_renamed.csv",
-        params = Path(config["src_data_specs"]) / "param_solow.json",
+        params = config["src_data_specs"] + "param_solow.json",
     output:
         data = Path(config["out_data"]) / "mrw_complete.csv"
     log:
-        str_from_path(Path(config["log"]) / "data-mgt/gen_reg_vars.Rout")
+        config["log"] + "data-mgt/gen_reg_vars.Rout"
     shell:
         "Rscript {input.script} \
             --data {input.data} \
@@ -29,12 +29,12 @@ rule gen_regression_vars:
 ## rename_vars        : creates meaningful variable names
 rule rename_vars:
     input:
-        script = Path(config["src_data_mgt"]) / "rename_variables.R",
-        data   = Path(config["src_data"]) / "mrw.dta"
+        script = config["src_data_mgt"] + "rename_variables.R",
+        data   = config["src_data"] + "mrw.dta"
     output:
         data = Path(config["out_data"]) / "mrw_renamed.csv"
     log:
-        str_from_path(Path(config["log"]) / "data-mgt/rename_variables.Rout")
+        config["log"] + "data-mgt/rename_variables.Rout"
     shell:
         "Rscript {input.script} \
             --data {input.data} \
