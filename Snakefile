@@ -9,22 +9,17 @@ from pathlib import Path
 
 configfile: "config.yaml"
 
-# Universal OS compatability
-def glob_wildcards_path(file_path):
-    path_as_str = str(file_path)
-    return glob_wildcards(path_as_str)
-
 # --- Dictionaries --- #
 # Identify subset conditions for data
-DATA_SUBSET = glob_wildcards_path(Path(config["src_data_specs"]) /
+DATA_SUBSET = glob_wildcards(config["src_data_specs"] +
                                     "{fname}.json").fname
 DATA_SUBSET = list(filter(lambda x: x.startswith("subset"), DATA_SUBSET))
 
 # Models we want to estimate
-MODELS = glob_wildcards_path(Path(config["src_model_specs"]) /
+MODELS = glob_wildcards(config["src_model_specs"] +
                                 "{fname}.json").fname
 
-FIGURES = glob_wildcards_path(Path(config["src_figures"]) /
+FIGURES = glob_wildcards(config["src_figures"] +
                                 "{fname}.R").fname
 TABLES  = [
             "tab01_textbook_solow",
