@@ -27,9 +27,9 @@ TABLES  = [
 ]
 
 # --- Sub Workflows --- #
-# subworkflow tables:
-#    workdir: str_from_pathPath(config["ROOT"]))
-#    snakefile:  str_from_path(Path(config["src_tables"]) / "Snakefile")
+subworkflow tables:
+   workdir: config["ROOT"]
+   snakefile: config["src_tables"] + "Snakefile"
 
 subworkflow analysis:
    workdir: config["ROOT"]
@@ -53,10 +53,10 @@ rule all:
                             iModel = MODELS,
                             iSubset = DATA_SUBSET)
                             ),
-        # tables  = tables(expand(config["out_tables"] +
-        #                     "{iTable}.tex",
-        #                     iTable = TABLES)
-        #                     )
+        tables  = tables(expand(config["out_tables"] +
+                            "{iTable}.tex",
+                            iTable = TABLES)
+                            )
 
 # --- Clean Rules --- #
 ## clean              : removes all content from out/ directory

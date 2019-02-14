@@ -26,7 +26,7 @@ rule augment_solow:
         filepath   = config["out_analysis"],
         model_expr = "model_aug_solow*.rds"
     output:
-        table = config["out_tables"] + "tab02_augment_solow.tex",
+        table = Path(config["out_tables"]) / "tab02_augment_solow.tex",
     log:
         config["log"] + "tables/tab02_augment_solow.Rout"
     shell:
@@ -34,7 +34,7 @@ rule augment_solow:
             --filepath {params.filepath} \
             --models {params.model_expr} \
             --out {output.table} \
-            >& {log}"
+            > {log} 2>&1"
 
 ## textbook_solow     : construct a table of regression estimates for textbook solow model
 rule textbook_solow:
@@ -49,7 +49,7 @@ rule textbook_solow:
         filepath   = config["out_analysis"],
         model_expr = "model_solow*.rds"
     output:
-        table = config["out_tables"] + "tab01_textbook_solow.tex"
+        table = Path(config["out_tables"]) / "tab01_textbook_solow.tex"
     log:
         config["log"] + "tables/tab01_textbook_solow.Rout"
     shell:
@@ -57,4 +57,4 @@ rule textbook_solow:
             --filepath {params.filepath} \
             --models {params.model_expr} \
             --out {output.table} \
-            >& {log}"
+            > {log} 2>&1"
