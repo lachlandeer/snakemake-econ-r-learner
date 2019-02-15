@@ -58,6 +58,36 @@ rule all:
                             iTable = TABLES)
                             )
 
+# --- Packrat Rules --- #
+
+## packrat_install: installs packrat onto machine
+# rule packrat_install:
+#     shell:
+#         "R -e 'install.packages(\"packrat\", repos=\"http://cran.us.r-project.org\")'"
+rule packrat_install:
+    input:
+        script = config["src_lib"] + "install_packrat.R"
+    log:
+        config["log"] + "packrat/install_packrat.Rout"
+    shell:
+        "Rscript {input.script}"
+
+
+## packrat_install: initialize a packrat environment for this project
+rule packrat_init:
+    shell:
+        "R -e 'packrat::init()'"
+
+## packrat_snap   : Look for new R packages in files & archives them
+rule packrat_snap:
+    shell:
+        "R -e 'packrat::snapshot()'"
+
+## packrat_restore: Installs archived packages onto a new machine
+rule packrat_restore:
+    shell:
+        "R -e 'packrat::restore()'"
+
 # --- Clean Rules --- #
 ## clean              : removes all content from out/ directory
 rule clean:
