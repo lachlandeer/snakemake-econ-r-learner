@@ -2,8 +2,6 @@
 #
 # Contributors: @lachlandeer, @julianlanger
 
-import glob, os
-
 # --- Importing Configuration Files --- #
 
 configfile: "../../" "config.yaml"
@@ -24,26 +22,17 @@ subworkflow tables:
 
 # --- Build Rules --- #
 
-## slides2root:    move slides to root directory
-rule slides2root:
-    input:
-        pdf  = ROOT + config["out_slides"] + PROJ_NAME + "_slides.pdf"
-    output:
-        pdf  = ROOT + PROJ_NAME + "_slides.pdf",
-    shell:
-        "cp {input.pdf} {output.pdf}"
-
 ## build_beamer: knit beamer slides
 rule build_beamer:
     input:
         runner    = LIB + "knit_beamer.R",
         rmd_file  = HERE + "slides.Rmd",
         tables     = tables(config["out_tables"] +
-                        "tab03_ucc_solow.tex"),
+                        "tab02_augment_solow.tex"),
         figures = figures(config["out_figures"] +
                             "unconditional_convergence.pdf"),
     output:
-        pdf = ROOT + config["out_slides"] + PROJ_NAME + "_slides.pdf"
+        pdf = Path(ROOT) / config["out_slides"] / "slides.pdf"
     log:
         ROOT + config["log"]+ "slides/slides.Rout"
     shell:

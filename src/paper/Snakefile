@@ -4,7 +4,7 @@
 #
 # contributors: @lachlandeer, @julianlanger
 
-import glob, os
+import glob
 
 # --- Importing Configuration Files --- #
 configfile: "../../" + "config.yaml"
@@ -35,14 +35,14 @@ logAll = "2>&1"
 
 # --- Build Rules --- #
 
-## paper2root:   copy paper to root directory
-rule paper2root:
-    input:
-        pdf  = "_book/my_article.pdf",
-    output:
-        pdf  = ROOT + PROJ_NAME + ".pdf",
-    shell:
-        "cp {input.pdf} {output.pdf}"
+# ## paper2root:   copy paper to root directory
+# rule paper2root:
+#     input:
+#         pdf  = Path(ROOT) / config["out_paper"] / "my_article.pdf",
+#     output:
+#         pdf  = Path(ROOT) / PROJ_NAME / ".pdf",
+#     shell:
+#         "cp {input.pdf} {output.pdf}"
 
 ## knit_pdf: builds pdf using bookdown
 rule knit_pdf:
@@ -56,16 +56,11 @@ rule knit_pdf:
                             iTable = TABLES)),
         figures = figures(expand(config["out_figures"] +
                             "{iPlot}.pdf",
-                            iPlot = PLOTS)),
+                            iPlot = FIGURES)),
         runner     = LIB + "build_pdfbook.R"
     output:
-        "_book/" + "my_article.pdf"
+        Path(ROOT) / config["out_paper"] / "paper.pdf"
     log:
         ROOT + config["log"] + "paper/build_pdf.Rout"
     shell:
         "{runR} {input.runner} > {log} {logAll}"
-
-
-rule clean:
-    shell:
-        "rm -rf _book/* bookdown_files/* *.pdf *.html"

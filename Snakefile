@@ -1,140 +1,136 @@
-# Main Workflow - MRW Replication
-# Contributors: @lachlandeer, @julianlanger
+## Snakemake - MRW Replication
+##
+## @yourname
+##
 
-import glob, os
+from pathlib import Path
 
 # --- Importing Configuration Files --- #
 
 configfile: "config.yaml"
 
-# --- PROJECT NAME --- #
-
-PROJ_NAME = "mrw_replication"
-
 # --- Dictionaries --- #
 # Identify subset conditions for data
-DATA_SUBSET = [os.path.splitext(os.path.basename(iFile))[0]
-                    for iFile in glob.glob(config["src_data_specs"] +
-                                            "*.json")]
+DATA_SUBSET = glob_wildcards(config["src_data_specs"] +
+                                    "{fname}.json").fname
+DATA_SUBSET = list(filter(lambda x: x.startswith("subset"), DATA_SUBSET))
 
-MODELS = [os.path.splitext(os.path.basename(iFile))[0]
-                    for iFile in glob.glob(config["src_model_specs"] +
-                                            "model_*.json")]
+# Models we want to estimate
+MODELS = glob_wildcards(config["src_model_specs"] +
+                                "{fname}.json").fname
 
-PLOTS = ["unconditional_convergence",
-         "conditional_convergence",
-         "aug_conditional_convergence"
-        ]
-
-TABLES = [ "tab01_textbook_solow",
-            "tab02_augment_solow",
-            "tab03_ucc_solow",
-            "tab04_cc_solow",
-            "tab05_cc_aug_solow",
-            "tab06_cc_aug_solow_restr"
-        ]
+FIGURES = glob_wildcards(config["src_figures"] +
+                                "{fname}.R").fname
+TABLES  = [
+            "tab01_textbook_solow",
+            "tab02_augment_solow"
+]
 
 # --- Sub Workflows --- #
-# only need the final outputs here
 subworkflow paper:
    workdir: config["src_paper"]
-   snakefile:  config["src_paper"] + "Snakefile"
+   snakefile: config["src_paper"] + "Snakefile"
 
 subworkflow slides:
    workdir: config["src_slides"]
    snakefile: config["src_slides"] + "Snakefile"
 
-# --- Variable Declarations ---- #
-runR = "Rscript --no-save --no-restore --verbose"
-logAll = "2>&1"
+# --- Build Rules --- #
 
-# --- Main Build Rules --- #
-
+## all                : builds all final outputs
 rule all:
     input:
-        paper_pdf = paper(config["sub2root"] + PROJ_NAME + ".pdf"),
-        beamer_slides = slides(config["sub2root"] +
-                                PROJ_NAME + "_slides.pdf"),
+        paper_pdf = paper(config["sub2root"] + config["out_paper"] + "paper.pdf"),
+        slides_pdf = slides(config["sub2root"] + config["out_slides"] + "slides.pdf")
+
+## install            : move pdfs to root for unix shells
+rule install:
+    input:
+        paper = rules.all.input.paper_pdf,
+        slides =  rules.all.input.paper_pdf
+    output:
+        paper = "paper.pdf",
+        slides = "slides.pdf"
+    shell:
+        "cp {input.paper} {output.paper} \
+         cp {input.slides} {output.slides}"
+
+## install_windows    : moves pdfs to root directory using powershell
+rule install_windows:
+    input:
+        paper = rules.all.input.paper_pdf,
+        slides =  rules.all.input.paper_pdf
+    output:
+        paper = "paper.pdf",
+        slides = "slides.pdf"
+    shell:
+        "powershell -Command Copy-Item {input.paper} -Destination {output.paper} \
+         powershell -Command Copy-Item {input.slides} -Destination {output.slides}"
 
 # --- Packrat Rules --- #
 
 ## packrat_install: installs packrat onto machine
 rule packrat_install:
+    input:
+        script = config["src_lib"] + "install_packrat.R"
+    log:
+        config["log"] + "packrat/install_packrat.Rout"
     shell:
-        "R -e 'install.packages(\"packrat\", repos=\"http://cran.us.r-project.org\")'"
+        "Rscript {input.script} > {log} 2>&1"
 
-## packrat_install: initialize a packrat environment for this project
+
+## packrat_init: initialize a packrat environment for this project
 rule packrat_init:
+    input:
+        script = config["src_lib"] + "init_packrat.R"
+    log:
+        config["log"] + "packrat/init_packrat.Rout"
     shell:
-        "R -e 'packrat::init()'"
+        "Rscript {input.script} > {log} 2>&1"
 
 ## packrat_snap   : Look for new R packages in files & archives them
 rule packrat_snap:
+    input:
+        script = config["src_lib"] + "snapshot_packrat.R"
+    log:
+        config["log"] + "packrat/snapshot_packrat.Rout"
     shell:
-        "R -e 'packrat::snapshot()'"
+        "Rscript {input.script} > {log} 2>&1"
 
 ## packrat_restore: Installs archived packages onto a new machine
 rule packrat_restore:
+    input:
+        script = config["src_lib"] + "restore_packrat.R"
+    log:
+        config["log"] + "packrat/restore_packrat.Rout"
     shell:
-        "R -e 'packrat::restore()'"
+        "Rscript {input.script} > {log} 2>&1"
 
-# --- Cleaning Rules --- #
-
-## clean_all      : delete all output and log files for this project
-rule clean_all:
+## install_rticles
+rule install_rticles:
+    input:
+        script = config["src_lib"] + "install_rticles.R"
+    log:
+        config["log"] + "packrat/install_rticles.Rout"
     shell:
-        "rm -rf out/ log/ *.pdf *.html"
+        "Rscript {input.script} > {log} 2>&1"
 
-## clean_output   : delete all built files in project's output and ROOT directory
-rule clean_output:
+# --- Clean Rules --- #
+## clean              : removes all content from out/ directory
+rule clean:
     shell:
-        "rm -rf out/ *.pdf *.html"
-
-## clean_logs     : delete all log files for this project
-rule clean_log:
-    shell:
-        "rm -rf log/"
+        "rm -rf out/*"
 
 # --- Help Rules --- #
-
-## help_main      : prints help comments for Snakefile in ROOT directory
-rule help_main:
-    input: "Snakefile"
+## help               : prints help comments for Snakefile
+rule help:
+    input:
+        main     = "Snakefile",
+        tables   = config["src_tables"] + "Snakefile",
+        analysis = config["src_analysis"] + "Snakefile",
+        data_mgt = config["src_data_mgt"] + "Snakefile",
+        figs     = config["src_figures"] + "Snakefile"
+    output: "HELP.txt"
     shell:
-        "sed -n 's/^##//p' {input}"
-
-## help_analysis  : prints help comments for Snakefile in analysis directory
-rule help_analysis:
-    input: config["src_analysis"] + "Snakefile"
-    shell:
-        "sed -n 's/^##//p' {input}"
-
-## help_data_mgt  : prints help comments for Snakefile in data-management directory
-rule help_data_mgt:
-    input: config["src_data_mgt"] + "Snakefile"
-    shell:
-        "sed -n 's/^##//p' {input}"
-
-## help_figures   : prints help comments for Snakefile in figures directory
-rule help_figures:
-    input: config["src_figures"] + "Snakefile"
-    shell:
-        "sed -n 's/^##//p' {input}"
-
-## help_paper     : prints help comments for Snakefile in paper directory
-rule help_paper:
-    input: config["src_paper"] + "Snakefile"
-    shell:
-        "sed -n 's/^##//p' {input}"
-
-## help_slides    : prints help comments for Snakefile in slides directory
-rule help_slides:
-    input: config["src_slides"] + "Snakefile"
-    shell:
-        "sed -n 's/^##//p' {input}"
-
-## help_tables    : prints help comments for Snakefile in tables directory
-rule help_tables:
-    input: config["src_tables"] + "Snakefile"
-    shell:
-        "sed -n 's/^##//p' {input}"
+        "find . -type f -name 'Snakefile' | tac | xargs sed -n 's/^##//p' \
+            > {output}"

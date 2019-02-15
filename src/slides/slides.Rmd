@@ -36,7 +36,7 @@ output:
 
 ## Adding a Table
 
-\input{../../out/tables/tab03_ucc_solow.tex}
+\input{../../out/tables/tab02_augment_solow.tex}
 
 ## Adding a Figure
 
