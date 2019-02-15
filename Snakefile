@@ -31,30 +31,41 @@ subworkflow paper:
    workdir: config["src_paper"]
    snakefile: config["src_paper"] + "Snakefile"
 
+subworkflow slides:
+   workdir: config["src_slides"]
+   snakefile: config["src_slides"] + "Snakefile"
+
 # --- Build Rules --- #
 
 ## all                : builds all final outputs
 rule all:
     input:
-        paper_pdf = paper(config["sub2root"] + config["out_paper"] + "paper.pdf")
+        paper_pdf = paper(config["sub2root"] + config["out_paper"] + "paper.pdf"),
+        slides_pdf = slides(config["sub2root"] + config["out_slides"] + "slides.pdf")
 
 ## install            : move pdfs to root for unix shells
 rule install:
     input:
-        paper = rules.all.input.paper_pdf
+        paper = rules.all.input.paper_pdf,
+        slides =  rules.all.input.paper_pdf
     output:
-        paper = "paper.pdf"
+        paper = "paper.pdf",
+        slides = "slides.pdf"
     shell:
-        "cp {input.paper} {output.paper}"
+        "cp {input.paper} {output.paper} \
+         cp {input.slides} {output.slides}"
 
 ## install_windows    : moves pdfs to root directory using powershell
 rule install_windows:
     input:
-        paper = rules.all.input.paper_pdf
+        paper = rules.all.input.paper_pdf,
+        slides =  rules.all.input.paper_pdf
     output:
-        paper = "paper.pdf"
+        paper = "paper.pdf",
+        slides = "slides.pdf"
     shell:
-        "powershell -Command Copy-Item {input.paper} -Destination {output.paper}"
+        "powershell -Command Copy-Item {input.paper} -Destination {output.paper} \
+         powershell -Command Copy-Item {input.slides} -Destination {output.slides}"
 
 # --- Packrat Rules --- #
 
