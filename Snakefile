@@ -64,7 +64,7 @@ rule install_windows:
         paper = "paper.pdf",
         slides = "slides.pdf"
     shell:
-        "powershell -Command Copy-Item {input.paper} -Destination {output.paper} \
+        "powershell -Command Copy-Item {input.paper} -Destination {output.paper} && \
          powershell -Command Copy-Item {input.slides} -Destination {output.slides}"
 
 # --- Packrat Rules --- #
