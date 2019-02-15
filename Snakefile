@@ -38,6 +38,16 @@ rule all:
     input:
         paper_pdf = paper(Path(config["sub2root"]) / config["out_paper"] / "paper.pdf")
 
+## install            : move pdfs to root for unix shells
+rule install:
+    input:
+        paper = rules.all.input.paper_pdf
+    output:
+        paper = "paper.pdf"
+    shell:
+        "cp {input.paper} {output.paper}"
+
+## install_windows    : moves pdfs to root directory using powershell
 rule install_windows:
     input:
         paper = rules.all.input.paper_pdf
