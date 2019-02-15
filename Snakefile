@@ -36,7 +36,7 @@ subworkflow paper:
 ## all                : builds all final outputs
 rule all:
     input:
-        paper_pdf = paper(Path(config["sub2root"]) / config["out_paper"] / "paper.pdf")
+        paper_pdf = paper(config["sub2root"] + config["out_paper"] + "paper.pdf")
 
 ## install            : move pdfs to root for unix shells
 rule install:
