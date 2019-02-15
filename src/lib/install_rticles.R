@@ -2,6 +2,6 @@
 #
 #
 
-to_install <- c("rmarkdown", "bookdown", "rticles") 
+to_install <- c("rmarkdown", "bookdown", "rticles")
 
-install.packages("rticles", repos="http://cran.us.r-project.org")
+install.packages(to_install, repos="http://cran.us.r-project.org")
