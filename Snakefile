@@ -70,13 +70,17 @@ rule packrat_install:
     log:
         config["log"] + "packrat/install_packrat.Rout"
     shell:
-        "Rscript {input.script}"
+        "Rscript {input.script} > {log} 2>&1"
 
 
-## packrat_install: initialize a packrat environment for this project
+## packrat_init: initialize a packrat environment for this project
 rule packrat_init:
+    input:
+        script = config["src_lib"] + "init_packrat.R"
+    log:
+        config["log"] + "packrat/init_packrat.Rout"
     shell:
-        "R -e 'packrat::init()'"
+        "Rscript {input.script} > {log} 2>&1"
 
 ## packrat_snap   : Look for new R packages in files & archives them
 rule packrat_snap:
