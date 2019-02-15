@@ -61,9 +61,6 @@ rule all:
 # --- Packrat Rules --- #
 
 ## packrat_install: installs packrat onto machine
-# rule packrat_install:
-#     shell:
-#         "R -e 'install.packages(\"packrat\", repos=\"http://cran.us.r-project.org\")'"
 rule packrat_install:
     input:
         script = config["src_lib"] + "install_packrat.R"
@@ -84,13 +81,21 @@ rule packrat_init:
 
 ## packrat_snap   : Look for new R packages in files & archives them
 rule packrat_snap:
+    input:
+        script = config["src_lib"] + "snapshot_packrat.R"
+    log:
+        config["log"] + "packrat/snapshot_packrat.Rout"
     shell:
-        "R -e 'packrat::snapshot()'"
+        "Rscript {input.script} > {log} 2>&1"
 
 ## packrat_restore: Installs archived packages onto a new machine
 rule packrat_restore:
+    input:
+        script = config["src_lib"] + "restore_packrat.R"
+    log:
+        config["log"] + "packrat/restore_packrat.Rout"
     shell:
-        "R -e 'packrat::restore()'"
+        "Rscript {input.script} > {log} 2>&1"
 
 # --- Clean Rules --- #
 ## clean              : removes all content from out/ directory
