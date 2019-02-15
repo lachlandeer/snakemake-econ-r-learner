@@ -27,36 +27,16 @@ TABLES  = [
 ]
 
 # --- Sub Workflows --- #
-subworkflow tables:
-   workdir: config["ROOT"]
-   snakefile: config["src_tables"] + "Snakefile"
-
-subworkflow analysis:
-   workdir: config["ROOT"]
-   snakefile: config["src_analysis"] + "Snakefile"
-
-subworkflow figs:
-   workdir: config["ROOT"]
-   snakefile: config["src_figures"] + "Snakefile"
+subworkflow paper:
+   workdir: config["src_paper"]
+   snakefile: config["src_paper"] + "Snakefile"
 
 # --- Build Rules --- #
 
 ## all                : builds all final outputs
 rule all:
     input:
-        figs   = figs(expand(config["out_figures"] +
-                            "{iFigure}.pdf",
-                            iFigure = FIGURES)
-                            ),
-        models = analysis(expand(config["out_analysis"] +
-                            "{iModel}_ols_{iSubset}.rds",
-                            iModel = MODELS,
-                            iSubset = DATA_SUBSET)
-                            ),
-        tables  = tables(expand(config["out_tables"] +
-                            "{iTable}.tex",
-                            iTable = TABLES)
-                            )
+        paper_pdf = paper(Path(config["sub2root"]) / config["out_paper"] / "paper.pdf")
 
 # --- Packrat Rules --- #
 
@@ -94,6 +74,15 @@ rule packrat_restore:
         script = config["src_lib"] + "restore_packrat.R"
     log:
         config["log"] + "packrat/restore_packrat.Rout"
+    shell:
+        "Rscript {input.script} > {log} 2>&1"
+
+## install_rticles
+rule install_rticles:
+    input:
+        script = config["src_lib"] + "install_rticles.R"
+    log:
+        config["log"] + "packrat/install_rticles.Rout"
     shell:
         "Rscript {input.script} > {log} 2>&1"
 

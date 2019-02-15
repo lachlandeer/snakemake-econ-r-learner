@@ -1,4 +1,5 @@
-book_filename: "my_article"
+book_filename: "paper"
+output_dir: "../../out/paper"
 language:
   ui:
     chapter_name: "Chapter "
