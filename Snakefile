@@ -38,6 +38,14 @@ rule all:
     input:
         paper_pdf = paper(Path(config["sub2root"]) / config["out_paper"] / "paper.pdf")
 
+rule install_windows:
+    input:
+        paper = rules.all.input.paper_pdf
+    output:
+        paper = "paper.pdf"
+    shell:
+        "powershell -Command Copy-Item {input.paper} -Destination {output.paper}"
+
 # --- Packrat Rules --- #
 
 ## packrat_install: installs packrat onto machine
