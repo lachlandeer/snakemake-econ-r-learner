@@ -47,12 +47,12 @@ rule all:
 rule install:
     input:
         paper = rules.all.input.paper_pdf,
-        slides =  rules.all.input.paper_pdf
+        slides =  rules.all.input.slides_pdf
     output:
         paper = "paper.pdf",
         slides = "slides.pdf"
     shell:
-        "cp {input.paper} {output.paper} \
+        "cp {input.paper} {output.paper} && \
          cp {input.slides} {output.slides}"
 
 ## install_windows    : moves pdfs to root directory using powershell
