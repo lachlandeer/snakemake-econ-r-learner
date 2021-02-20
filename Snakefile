@@ -1,26 +1,33 @@
+MODELS = glob_wildcards("src/model-specs/{fname}.json").fname 
+
+# note this filter is only needed coz we are running an older version of the src files, will be updated soon
+DATA_SUBSET = glob_wildcards("src/data-specs/{fname}.json").fname
+DATA_SUBSET = list(filter(lambda x: x.startswith("subset"), DATA_SUBSET))
+
+PLOTS = glob_wildcards("src/figures/{fname}.R").fname
 
 ##############################################
 # OLS TARGET
 ##############################################
 
-rule solow_target:
+rule run_models:
     input:
-        intermediate = "out/analysis/model_solow_subset_intermediate.rds",
-        nonoil       = "out/analysis/model_solow_subset_nonoil.rds",
-        oecd         = "out/analysis/model_solow_subset_oecd.rds"
+        expand("out/analysis/{iModel}.{iSubset}.rds",
+                    iSubset = DATA_SUBSET,
+                    iModel = MODELS)
 
 ##############################################
 # OLS RULES
 ##############################################
 
-rule solow_model:
+rule model:
     input:
         script = "src/analysis/estimate_ols_model.R",
         data   = "out/data/mrw_complete.csv",
-        model  = "src/model-specs/model_solow.json",
-        subset = "src/data-specs/subset_{iSubset}.json"
+        model  = "src/model-specs/{iModel}.json",
+        subset = "src/data-specs/{iSubset}.json"
     output:
-        estimate = "out/analysis/model_solow_subset_{iSubset}.rds"
+        estimate = "out/analysis/{iModel}.{iSubset}.rds"
     shell:
         "Rscript {input.script} \
             --data {input.data} \
@@ -28,6 +35,31 @@ rule solow_model:
             --subset {input.subset} \
             --out {output.estimate}"
 
+##############################################
+# figs TARGET
+##############################################
+
+rule make_figures:
+    input:
+        expand("out/figures/{iFigure}.pdf",
+                    iFigure = PLOTS)
+
+##############################################
+# MAKING FIGS
+##############################################
+
+rule figure:
+    input:
+        script = "src/figures/{iFigure}.R",
+        data   = "out/data/mrw_complete.csv",
+        subset = "src/data-specs/subset_intermediate.json"
+    output:
+        fig = "out/figures/{iFigure}.pdf"
+    shell:
+        "Rscript {input.script} \
+            --data {input.data} \
+            --subset {input.subset} \
+            --out {output.fig}"
 
 ##############################################
 # DATA MANAGEMENT
@@ -57,14 +89,6 @@ rule rename_vars:
             --data {input.data} \
             --out {output.data}"
 
-
-##############################################
-# HELLO WORLD
-##############################################
-
-rule hello_world:
-    shell:
-        'echo "Hello World"'
 
 
 ##############################################
