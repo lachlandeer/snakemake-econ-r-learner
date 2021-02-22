@@ -1,4 +1,3 @@
-
 MODELS = glob_wildcards("src/model-specs/{fname}.json").fname 
 
 # note this filter is only needed coz we are running an older version of the src files, will be updated soon
@@ -35,7 +34,6 @@ rule make_figures:
 # INTERMEDIATE RULES
 ##############################################
 
-# table: build one table
 rule table:
     input:
         script = "src/tables/regression_table.R",
