@@ -8,7 +8,7 @@ DATA_SUBSET = list(filter(lambda x: x.startswith("subset"), DATA_SUBSET))
 PLOTS = glob_wildcards("src/figures/{fname}.R").fname
 
 TABLES = glob_wildcards("src/table-specs/{fname}.json").fname
-
+PAPER_FILES  = glob_wildcards("src/paper/{fname}").fname
 
 ##############################################
 # TARGETS
@@ -41,6 +41,17 @@ rule make_figures:
 ##############################################
 # INTERMEDIATE RULES
 ##############################################
+
+rule build_paper:
+    input:
+        script = "src/lib/build_article.R",
+        paper  = expand("src/paper/{iPaper}",
+                          iPaper = PAPER_FILES)
+    output:
+        pdf = "out/paper/paper.pdf"
+    shell:
+        "Rscript {input.script} --index src/paper/index.Rmd"
+
 
 # table: build one table
 rule table:
