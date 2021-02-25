@@ -16,10 +16,7 @@ PAPER_FILES  = glob_wildcards("src/paper/{fname}").fname
 
 rule all:
     input:
-        expand("out/figures/{iFigure}.pdf",
-                    iFigure = PLOTS),
-        expand("out/tables/{iTable}.tex",
-                    iTable = TABLES) 
+        paper = "out/paper/paper.pdf"
 
 rule make_tables:
     input:
@@ -46,7 +43,11 @@ rule build_paper:
     input:
         script = "src/lib/build_article.R",
         paper  = expand("src/paper/{iPaper}",
-                          iPaper = PAPER_FILES)
+                          iPaper = PAPER_FILES),
+        figures = expand("out/figures/{iFigure}.pdf",
+                    iFigure = PLOTS),
+        tables  = expand("out/tables/{iTable}.tex",
+                    iTable = TABLES) 
     output:
         pdf = "out/paper/paper.pdf"
     shell:
