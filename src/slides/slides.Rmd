@@ -1,11 +1,15 @@
+
 ---
 title: "Replicating MRW with Snakemake"
 subtitle: "A guide to workflow management"
 author:
   - "Lachlan Deer$^1$"
-  - "Julian Langer$^1$"
+  - "Julian Langer$^2$"
+  - "Ulrich Bergmann$^3$"
 institute:
-   - $^1$University of Zurich
+   - $^1$Dept. of Marketing, TiSEM
+   - $^2$Harvard Law School
+   - $^3$University of Zurich
 date: "`r Sys.Date()`"
 output:
   beamer_presentation:
@@ -14,7 +18,9 @@ output:
     colortheme: "default"
     fonttheme: "default"
     slide_level: 2
-    #keep_tex: TRUE
+    keep_tex: TRUE
+    includes: 
+      in_header: preamble.tex
 ---
 
 ## Motivation
@@ -36,7 +42,24 @@ output:
 
 ## Adding a Table
 
-\input{../../out/tables/tab02_augment_solow.tex}
+\begin{table}[h!]
+    \begin{singlespace}
+    \caption{your caption}
+    \begin{center}
+    \begin{threeparttable}
+    \begin{footnotesize}
+    \input{../../out/tables/table_06.tex}
+    \end{footnotesize}
+    \begin{tablenotes}
+        \begin{footnotesize}
+    \item \textit{Notes:} some notes
+        \end{footnotesize}
+    \end{tablenotes}
+    \end{threeparttable}
+    \end{center}
+    \label{table:tbl_ref}
+        \end{singlespace}
+    \end{table}
 
 ## Adding a Figure
 
