@@ -1,6 +1,5 @@
-
 ##############################################
-# OLS TARGET
+# TARGET RULES
 ##############################################
 
 rule solow_target:
@@ -8,6 +7,7 @@ rule solow_target:
         intermediate = "out/analysis/model_solow_subset_intermediate.rds",
         nonoil       = "out/analysis/model_solow_subset_nonoil.rds",
         oecd         = "out/analysis/model_solow_subset_oecd.rds"
+
 
 ##############################################
 # OLS RULES
@@ -83,8 +83,9 @@ rule clean_analysis:
     shell:
         "rm -rf out/analysis/*"
 
+
 ##############################################
-# MAKE GRAPHS
+# MAKE GRAPHS (only for us)
 ##############################################
 
 ## dag                : create the DAG as a pdf from the Snakefile
